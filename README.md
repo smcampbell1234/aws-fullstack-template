@@ -207,8 +207,27 @@ Notice in the Integration Reques the type reades LAMBDA_PROXY. This means the ga
 
 ### -------------------------------
 
-### Commit 2 'dyanmoDB setup'
+### Commit 2 dyanmoDB setup
 
 ### ------------------------------
 
-This is where we add resources to the configuration file.
+This is where we add resources to the configuration file. We use CloudFormation to setup a DynamoDB
+
+Docs
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-dynamodb-table.html
+
+```
+resources:
+  Resources:
+    gamesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: allGames
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: gameId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: gameId
+            KeyType: HASH
+```
