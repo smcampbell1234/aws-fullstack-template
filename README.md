@@ -310,3 +310,50 @@ module.exports.createGame = async (event, context, callback) => {
   }
 };
 ```
+
+### -------------------------------
+
+### Commit 4 plugin to change IAM permision from global to per Lambda
+
+### ------------------------------
+
+1. install plugin as a dev dependency
+   https://www.npmjs.com/package/serverless-iam-roles-per-function
+
+```
+npm install --save-dev serverless-iam-roles-per-function
+```
+
+./package.json you should see
+
+```
+  "devDependencies": {
+    "serverless-iam-roles-per-function": "^3.2.0"
+  }
+```
+
+2. add plugins block in config file
+
+```
+plugins:
+  - serverless-iam-roles-per-function
+```
+
+3. move IAM permsion from Provider to Lambda function block
+   // serverles.yml > functions:
+
+```
+  createGame:
+    handler: handler.createGame
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt gamesTable.Arn
+    events:
+      - http:
+          method: post
+          path: games
+```
+
+At this point only createGame() should have access to dynamoDB

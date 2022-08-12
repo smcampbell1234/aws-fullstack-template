@@ -6,15 +6,15 @@ provider:
   runtime: nodejs12.x
   stage: dev
   region: us-east-1
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:PutItem
-      Resource: !GetAtt gamesTable.Arn
 
 functions:
   createGame:
     handler: handler.createGame
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: !GetAtt gamesTable.Arn
     events:
       - http:
           method: post
@@ -37,6 +37,10 @@ functions:
       - http:
           method: get
           path: games
+
+plugins:
+  - serverless-iam-roles-per-function
+
 # you can add CloudFormation resource templates here
 resources:
   Resources:
