@@ -3,6 +3,13 @@ const DynamoDB = require("aws-sdk/clients/dynamodb")
 const documentClient = new DynamoDB.DocumentClient({region: 'us-east-1'});
 const GAMES_TABLE_NAME = process.env.GAMES_TABLE_NAME;
 
+const send = (statusCode, data) => {
+  return {
+    statusCode: statusCode,
+    body: JSON.stringify(data)
+  }
+}
+
 module.exports.createGame = async (event, context, callback) => {
   let data = JSON.parse(event.body);
   try {
@@ -16,15 +23,9 @@ module.exports.createGame = async (event, context, callback) => {
       ConditionExpression: "attribute_not_exists(gameId)"
     }
     await documentClient.put(params).promise();
-    callback(null,{
-      statusCode: 201,
-      body: JSON.stringify(data),
-    })
+    callback(null, send(201, data))
   } catch(err) {
-    callback(null,{
-      statusCode: 500,
-      body: JSON.stringify(err.message),
-    })
+    callback(null, send(500, err.message))
   }
 };
 
@@ -47,15 +48,9 @@ module.exports.updateGame = async (event, context,callback) => {
       ConditionExpression: 'attribute_exists(gameId)'
     }
     await documentClient.update(params).promise();
-    callback(null,{
-      statusCode: 200,
-      body: JSON.stringify(data),
-    })
+    callback(null, send(200, data))
   } catch(err) {
-    callback(null,{
-      statusCode: 500,
-      body: JSON.stringify(err.message),
-    })
+    callback(null, send(500, err.message))
   }
 };
 

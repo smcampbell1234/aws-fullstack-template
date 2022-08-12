@@ -402,3 +402,26 @@ module.exports.createGame = async (event, context, callback) => {
 ```
 
 At this point the Create Lambda and Update Lambda are working. We also installed a plugin that allowed us to put the IAM permission within each lambda. We also created an enviroment variable fot the table's name, which is passed to the handler the lambda function.
+
+### -------------------------------
+
+### Commit 6 create send() function to make callback more readable
+
+### ------------------------------
+
+A refactor to make callback more readable.
+
+/ handler.js
+
+```
+const send = (statusCode, data) => {
+  return {
+    statusCode: statusCode,
+    body: JSON.stringify(data)
+  }
+}
+```
+
+```await documentClient.put(params).promise();
+    callback(null, send(201, data))
+```
