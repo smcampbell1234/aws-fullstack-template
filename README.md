@@ -231,3 +231,82 @@ resources:
           - AttributeName: gameId
             KeyType: HASH
 ```
+
+### -------------------------------
+
+### Commit 3 connect POST Lambda to DynamoDB, add IAM permission
+
+### ------------------------------
+
+We use AWS-SDK to communicate from Lambda to DynamoDB
+Dynamodb javascript sdk docs
+https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB.html
+
+- 1. create dynamoDB class instance
+
+- 2. use dyanmoDB instance to execute daynamoDB methods (CRUD methods)
+
+DynamoDB Document Client has simpler syntax (Defined Under Namespace)
+https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html
+
+PUT (WITH Document Client)
+https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
+
+#### 1. install sdk, then import sdk for client and create instance
+
+Note - versin 3 is stable (but tutorial uses v. 2), also check package.json to make sure dependency installed.
+
+```
+npm install aws-sdk@2
+```
+
+```
+const DynamoDB = require("aws-sdk/clients/dynamodb")
+const documentClient = new DynamoDB.DocumentClient({region: 'us-east-1'});
+```
+
+### 2 Add IAM access that allows lambda to access table
+
+Becuase the IAM permission is added at the Provider level, it is available to all lambdas.
+
+```
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource: !GetAtt gamesTable.Arn
+```
+
+### 3 Add Code for lambda post
+
+```
+module.exports.createGame = async (event, context, callback) => {
+  let data = JSON.parse(event.body);
+  try {
+    const params = {
+      TableName: "allGames",
+      Item: {
+        gameId: data.id,
+        title: data.title,
+        body: data.body
+      },
+      ConditionExpression: "attribute_not_exists(gameId)"
+    }
+    await documentClient.put(params).promise();
+    callback(null,{
+      statusCode: 201,
+      body: JSON.stringify(data),
+    })
+  } catch(err) {
+    callback(null,{
+      statusCode: 500,
+      body: JSON.stringify(err.message),
+    })
+  }
+};
+```

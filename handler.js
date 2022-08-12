@@ -1,10 +1,30 @@
 'use strict';
+const DynamoDB = require("aws-sdk/clients/dynamodb")
+const documentClient = new DynamoDB.DocumentClient({region: 'us-east-1'});
 
-module.exports.createGame = async (event) => {
-  return {
-    statusCode: 201,
-    body: JSON.stringify("A game has been created."),
-  };
+module.exports.createGame = async (event, context, callback) => {
+  let data = JSON.parse(event.body);
+  try {
+    const params = {
+      TableName: "allGames",
+      Item: {
+        gameId: data.id,
+        title: data.title,
+        body: data.body
+      },
+      ConditionExpression: "attribute_not_exists(gameId)"
+    }
+    await documentClient.put(params).promise();
+    callback(null,{
+      statusCode: 201,
+      body: JSON.stringify(data),
+    })
+  } catch(err) {
+    callback(null,{
+      statusCode: 500,
+      body: JSON.stringify(err.message),
+    })
+  }
 };
 
 module.exports.updateGame = async (event) => {
