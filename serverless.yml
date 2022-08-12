@@ -1,0 +1,45 @@
+service: crud-api-nfl
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+
+functions:
+  createGame:
+    handler: handler.createGame
+    events:
+      - http:
+          method: post
+          path: games
+  updateGame:
+    handler: handler.updateGame
+    events:
+      - http:
+          method: put
+          path: games/{id}
+  deleteGame:
+    handler: handler.deleteGame
+    events:
+      - http:
+          method: delete
+          path: games/{id}
+  getAllNotes:
+    handler: handler.getAllGames
+    events:
+      - http:
+          method: get
+          path: games
+# you can add CloudFormation resource templates here
+# resources:
+#   Resources:
+#     gamesTable:
+#       Type: AWS::S3::Bucket
+#       Properties:
+#         BucketName: my-new-bucket
+#   Outputs:
+#     NewOutput:
+#       Description: 'Description for the output'
+#       Value: 'Some output value'
