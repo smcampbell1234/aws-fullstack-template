@@ -357,3 +357,48 @@ plugins:
 ```
 
 At this point only createGame() should have access to dynamoDB
+
+### -------------------------------
+
+### Commit 5 implement PUT (update) Call and Env. Variabale
+
+### ------------------------------
+
+- implement PUT (update) Call
+- dynamically retrieve table name with env variable
+
+/serverless.yml
+placed int create and update function blocks
+
+```
+  updateGame:
+    handler: handler.updateGame
+    environment:
+      GAMES_TABLE_NAME: !Ref gamesTable
+      ...
+```
+
+import into handler
+/handler.js
+
+```
+const GAMES_TABLE_NAME = process.env.GAMES_TABLE_NAME;
+```
+
+use it in function params
+/handler.createNotes
+
+```
+module.exports.createGame = async (event, context, callback) => {
+  let data = JSON.parse(event.body);
+  try {
+    const params = {
+      TableName: GAMES_TABLE_NAME,
+      Item: {
+        gameId: data.id,
+        title: data.title,
+        body: data.body
+      },
+```
+
+At this point the Create Lambda and Update Lambda are working. We also installed a plugin that allowed us to put the IAM permission within each lambda. We also created an enviroment variable fot the table's name, which is passed to the handler the lambda function.

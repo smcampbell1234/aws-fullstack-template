@@ -10,6 +10,8 @@ provider:
 functions:
   createGame:
     handler: handler.createGame
+    environment:
+      GAMES_TABLE_NAME: !Ref gamesTable
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -21,6 +23,13 @@ functions:
           path: games
   updateGame:
     handler: handler.updateGame
+    environment:
+      GAMES_TABLE_NAME: !Ref gamesTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:updateItem
+        Resource: !GetAtt gamesTable.Arn
     events:
       - http:
           method: put
