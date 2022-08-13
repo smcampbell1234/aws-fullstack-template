@@ -471,3 +471,43 @@ module.exports.deleteGame = async (event, context, callback) => {
   }
 };
 ```
+
+### -------------------------------
+
+### Commit 8 implement GET ALL call
+
+### ------------------------------
+
+/serverless.yml
+
+```
+  getAllNotes:
+    handler: handler.getAllGames
+    environment:
+      GAMES_TABLE_NAME: !Ref gamesTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt gamesTable.Arn
+    events:
+      - http:
+          method: get
+          path: games
+```
+
+/handler.js
+
+```
+module.exports.getAllGames = async (event,context,callback) => {
+  try {
+    const params = {
+      TableName: GAMES_TABLE_NAME,
+    }
+    const games = await documentClient.scan(params).promise();
+    callback(null, send(200,games))
+  } catch(err) {
+    callback(null,send(500, err.message))
+  }
+};
+```
