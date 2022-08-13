@@ -71,9 +71,14 @@ module.exports.deleteGame = async (event, context, callback) => {
   }
 };
 
-module.exports.getAllGames = async (event) => {
-  return {
-    statusCode: 200,
-    body: JSON.stringify(`All games are returned.`),
-  };
+module.exports.getAllGames = async (event,context,callback) => {
+  try {
+    const params = {
+      TableName: GAMES_TABLE_NAME,
+    }
+    const games = await documentClient.scan(params).promise();
+    callback(null, send(200,games))
+  } catch(err) {
+    callback(null,send(500, err.message))
+  }
 };

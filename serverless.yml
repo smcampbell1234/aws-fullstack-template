@@ -52,6 +52,13 @@ functions:
 
   getAllNotes:
     handler: handler.getAllGames
+    environment:
+      GAMES_TABLE_NAME: !Ref gamesTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+        Resource: !GetAtt gamesTable.Arn
     events:
       - http:
           method: get
