@@ -21,6 +21,7 @@ functions:
       - http:
           method: post
           path: games
+
   updateGame:
     handler: handler.updateGame
     environment:
@@ -28,18 +29,27 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
-          - dynamodb:updateItem
+          - dynamodb:UpdateItem
         Resource: !GetAtt gamesTable.Arn
     events:
       - http:
           method: put
           path: games/{id}
+
   deleteGame:
     handler: handler.deleteGame
+    environment:
+      GAMES_TABLE_NAME: !Ref gamesTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt gamesTable.Arn
     events:
       - http:
           method: delete
           path: games/{id}
+
   getAllNotes:
     handler: handler.getAllGames
     events:

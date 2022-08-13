@@ -405,7 +405,7 @@ At this point the Create Lambda and Update Lambda are working. We also installed
 
 ### -------------------------------
 
-### Commit 6 create send() function to make callback more readable
+### Commit 6 send() refactor to make callback more readable
 
 ### ------------------------------
 
@@ -424,4 +424,50 @@ const send = (statusCode, data) => {
 
 ```await documentClient.put(params).promise();
     callback(null, send(201, data))
+```
+
+### -------------------------------
+
+### Commit 7 implement DELETE call
+
+### ------------------------------
+
+/serverless.yml
+
+```
+  deleteGame:
+    handler: handler.deleteGame
+    environment:
+      GAMES_TABLE_NAME: !Ref gamesTable
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: !GetAtt gamesTable.Arn
+    events:
+      - http:
+          method: delete
+          path: games/{id}
+```
+
+/handler.js
+Note: all lambdas include a conditional expressin in params to make the API Call Idempotent
+
+```
+module.exports.deleteGame = async (event, context, callback) => {
+  let gameId = event.pathParameters.id
+  try {
+    const params = {
+      TableName: GAMES_TABLE_NAME,
+      Key: {
+        gameId: gameId
+      },
+      ConditionExpression: 'attribute_exists(gameId)'
+    }
+    await documentClient.delete(params).promise();
+    callback(null,send(200,gameId))
+  } catch(err) {
+    callback(null, send(500, err.message))
+  }
+};
 ```

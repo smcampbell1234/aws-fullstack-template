@@ -54,12 +54,21 @@ module.exports.updateGame = async (event, context,callback) => {
   }
 };
 
-module.exports.deleteGame = async (event) => {
+module.exports.deleteGame = async (event, context, callback) => {
   let gameId = event.pathParameters.id
-  return {
-    statusCode: 200,
-    body: JSON.stringify(`Game with id ${gameId} has been deleted.`),
-  };
+  try {
+    const params = {
+      TableName: GAMES_TABLE_NAME,
+      Key: {
+        gameId: gameId
+      },
+      ConditionExpression: 'attribute_exists(gameId)'
+    }
+    await documentClient.delete(params).promise();
+    callback(null,send(200,gameId))
+  } catch(err) {
+    callback(null, send(500, err.message))
+  }
 };
 
 module.exports.getAllGames = async (event) => {
